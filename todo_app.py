@@ -1,22 +1,34 @@
+import json
+import os 
+
+# File to store tasks
+TASK_FILE = "task.json"
+
+# Load Task
+def load_task():
+    if os.path.exists(TASK_FILE):
+        with open(TASK_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+# Save Task
+def save_task():
+    with open(TASK_FILE, "w") as f:
+        json.dump(tasks, f, indent=4)  
+
 # Tasks List
-tasks = [
-    {"task": "Learn Flutter", "completed": False},
-    {"task": "Drink", "completed": True},
-]
+tasks = load_task()
 
 # Add Task Function
-
-
 def add_task():
     task_name = input("\nEnter the task: ")
     tasks.append({"task": task_name, "completed": False})
+    save_task()
     print("-" * 40)
     print(f"Task: '{task_name}' added successfully!")
     print("-" * 40)
 
 # View Task Function
-
-
 def view_task():
     print("\n" + "=" * 40)
     print("📋 Your To-Do List".center(40))
@@ -33,29 +45,26 @@ def view_task():
         print("-" * 40)
 
 # Update Task Function
-
-
 def update_task():
     view_task()
     task_number = int(input("\nEnter the task number to update: "))
     index = task_number - 1
     new_task = input("Enter the new task name: ").strip()
     tasks[index]['task'] = new_task
+    save_task()  
     print("-" * 40)
     print(f"Task {task_number} updated successfully!")
     print("-" * 40)
 
 # Mark As Completed Function
-
-
 def mark_task_completed():
     view_task()
-    task_number = int(
-        input("\nEnter the task number you want to mark as completed: "))
+    task_number = int(input("\nEnter the task number you want to mark as completed: "))
     index = task_number - 1
 
     if not tasks[index]["completed"]:
         tasks[index]["completed"] = True
+        save_task()  
         print("-" * 40)
         print(f"Task {task_number} marked as completed ✅")
         print("-" * 40)
@@ -63,35 +72,30 @@ def mark_task_completed():
         print(f"Task {task_number} is already marked as completed!")
 
 # Delete Task Function
-
-
 def delete_task():
     view_task()
     task_number = int(input("\nEnter the task number: "))
     index = task_number - 1
     deleted_task = tasks.pop(index)
+    save_task()  
     print("-" * 40)
     print(f"Task '{deleted_task['task']}' has been deleted.")
     print("-" * 40)
 
 # Toggle Task Completion Function
-
-
 def toggle_task_completed():
     view_task()
-    task_number = int(
-        input("\nEnter the task number to toggle completion status: "))
+    task_number = int(input("\nEnter the task number to toggle completion status: "))
     index = task_number - 1
 
     tasks[index]["completed"] = not tasks[index]["completed"]
     status = "completed" if tasks[index]["completed"] else "not completed"
+    save_task()  
     print("-" * 40)
     print(f"Task {task_number} is now {status}.")
     print("-" * 40)
 
 # Menu function
-
-
 def menu():
     print("=" * 40)
     print("📋 Welcome to the Task Manager 📋".center(40))
@@ -105,9 +109,7 @@ def menu():
     print("7. Exit")
     print("=" * 40)
 
-# Main function using match-case
-
-
+# Main function 
 def main():
     while True:
         menu()
@@ -131,7 +133,6 @@ def main():
                 break
             case _:
                 print("Invalid choice, please try again.")
-
 
 # Run the main function
 main()
