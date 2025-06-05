@@ -1,3 +1,5 @@
+import json
+import os
 from cryptography.fernet import Fernet
 
 # 1. Generate a key (only once — comment out after first run)
@@ -13,6 +15,27 @@ def load_key():
     with open("key.key", "rb") as f:
         return f.read()
 
+# Save 'Encrypted Data' to a JSON File
+def save_to_vault(data):
+    file_path = "vault.json"
+
+    if os.path.exists(file_path):
+        print("Yes it exits!")
+        with open(file_path, 'r') as f:
+            vault = json.load(f)
+    else:
+        vault = {}
+
+    website = data["website"]
+    vault[website] = {
+        "username": data["username"],
+        "password": data["password"]
+    }
+
+    with open(file_path, 'w') as f:
+        json.dump(vault, f, indent=2)
+
+    print(f"\n Data saved to {file_path}")
 
 # 3. Collect user data
 def user_input():
@@ -34,7 +57,7 @@ def user_input():
 # ========== MAIN PROGRAM ==========
 
 # Only run this once, then comment it out
-generate_key()
+# generate_key()
 user_data = user_input()
 
 if user_data:
@@ -47,3 +70,5 @@ if user_data:
 
     print("\nEncrypted User Data:")
     print(user_data)
+
+    save_to_vault(user_data)
