@@ -1,74 +1,55 @@
-import json
-import os
-from cryptography.fernet import Fernet
+from vault.key_handler import ensure_key_exists
+from vault.operations import add_entry, view_entries, search_entry, edit_entry, delete_entry
 
-# 1. Generate a key (only once — comment out after first run)
-def generate_key():
-    key = Fernet.generate_key()
-    with open("key.key", "wb") as f:
-        f.write(key)
-    print(f"Key generated and saved to 'key.key': {key.decode()}")
+def get_user_input():
+    site = input("Website: ").strip()
+    user = input("Username: ").strip()
+    pwd = input("Password: ").strip()
 
-
-# 2. Load the key from file
-def load_key():
-    with open("key.key", "rb") as f:
-        return f.read()
-
-# Save 'Encrypted Data' to a JSON File
-def save_to_vault(data):
-    file_path = "vault.json"
-
-    if os.path.exists(file_path):
-        print("Yes it exits!")
-        with open(file_path, 'r') as f:
-            vault = json.load(f)
-    else:
-        vault = {}
-
-    website = data["website"]
-    vault[website] = {
-        "username": data["username"],
-        "password": data["password"]
-    }
-
-    with open(file_path, 'w') as f:
-        json.dump(vault, f, indent=2)
-
-    print(f"\n Data saved to {file_path}")
-
-# 3. Collect user data
-def user_input():
-    website = input("Enter the name of the website: ").strip()
-    username = input("Enter the username: ").strip()
-    password = input("Enter the password: ").strip()
-
-    if not website or not username or not password:
-        print("Please fill all of the fields before proceeding!")
+    if not site or not user or not pwd:
+        print("All fields are required.")
         return None
 
-    return {
-        "website": website,
-        "username": username,
-        "password": password,
-    }
+    return {"website": site, "username": user, "password": pwd}
 
+def menu():
+    ensure_key_exists()
 
-# ========== MAIN PROGRAM ==========
+    while True:
+        print("\n====== Password Manager ======")
+        print("1. Add new password")
+        print("2. View all passwords")
+        print("3. Search password")
+        print("4. Edit password")
+        print("5. Delete password")
+        print("6. Exit")
 
-# Only run this once, then comment it out
-# generate_key()
-user_data = user_input()
+        choice = input("Choose (1-6): ").strip()
 
-if user_data:
-    key = load_key()
-    fernet = Fernet(key)
+        match choice:
+            case "1":
+                data = get_user_input()
+                if data:
+                    add_entry(data)
 
-    # Encrypt password
-    encrypted_password = fernet.encrypt(user_data["password"].encode())
-    user_data["password"] = encrypted_password.decode()  # store as string
+            case "2":
+                view_entries()
 
-    print("\nEncrypted User Data:")
-    print(user_data)
+            case "3":
+                search_entry()
 
-    save_to_vault(user_data)
+            case "4":
+                edit_entry()
+
+            case "5":
+                delete_entry()
+
+            case "6":
+                print("Exiting...")
+                break
+
+            case _:
+                print("Invalid option. Please choose between 1 to 6.")
+
+if __name__ == "__main__":
+    menu()
